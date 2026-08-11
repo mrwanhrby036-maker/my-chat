@@ -4,8 +4,10 @@ import json
 from main import load_database, save_database
 
 
-HOST = "127.0.0.1"
-PORT = 8000
+import os
+
+HOST = "0.0.0.0"
+PORT = int(os.environ.get("PORT", 8000))
 
 
 class Server(BaseHTTPRequestHandler):
