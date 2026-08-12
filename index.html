@@ -6,95 +6,146 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-```
-<title>My Chat</title>
+    <title>My Chat</title>
 
-<link rel="stylesheet" href="style.css">
-```
+    <link rel="stylesheet" href="style.css">
 
 </head>
 
 <body>
 
-```
-<main class="app">
+    <main class="app">
 
-    <section class="login-screen" id="loginScreen">
+        <section class="login-screen" id="loginScreen">
 
-        <div class="login-card">
+            <div class="login-card">
 
-            <div class="logo">
-                💬
+                <div class="logo">
+                    💬
+                </div>
+
+                <h1>My Chat</h1>
+
+
+                <!-- فورم تسجيل الدخول -->
+                <form id="loginForm">
+
+                    <p class="form-title">سجل دخولك عشان تدخل الشات</p>
+
+                    <input
+                        type="text"
+                        id="loginUsername"
+                        placeholder="اسم المستخدم"
+                        maxlength="30"
+                        autocomplete="username"
+                        required
+                    >
+
+                    <input
+                        type="password"
+                        id="loginPassword"
+                        placeholder="كلمة المرور"
+                        autocomplete="current-password"
+                        required
+                    >
+
+                    <button type="submit">
+                        دخول
+                    </button>
+
+                    <p id="loginError" class="error"></p>
+
+                    <p class="switch-text">
+                        معندكش حساب؟
+                        <a href="#" id="showRegister">اعمل حساب جديد</a>
+                    </p>
+
+                </form>
+
+
+                <!-- فورم إنشاء حساب -->
+                <form id="registerForm" hidden>
+
+                    <p class="form-title">اعمل حساب جديد</p>
+
+                    <input
+                        type="text"
+                        id="registerUsername"
+                        placeholder="اختار اسم مستخدم"
+                        maxlength="30"
+                        autocomplete="username"
+                        required
+                    >
+
+                    <input
+                        type="password"
+                        id="registerPassword"
+                        placeholder="اختار كلمة مرور"
+                        autocomplete="new-password"
+                        required
+                    >
+
+                    <button type="submit">
+                        إنشاء الحساب
+                    </button>
+
+                    <p id="registerError" class="error"></p>
+
+                    <p class="switch-text">
+                        عندك حساب بالفعل؟
+                        <a href="#" id="showLogin">سجل دخولك</a>
+                    </p>
+
+                </form>
+
             </div>
 
-            <h1>My Chat</h1>
+        </section>
 
-            <p>اكتب اسمك وادخل الشات</p>
 
-            <form id="loginForm">
+        <section class="chat-screen" id="chatScreen" hidden>
+
+            <header class="chat-header">
+
+                <div>
+                    <strong>💬 My Chat</strong>
+                    <span id="currentUser"></span>
+                </div>
+
+                <button type="button" id="logoutButton" class="logout-btn">
+                    خروج
+                </button>
+
+            </header>
+
+
+            <div id="messages" class="messages">
+            </div>
+
+
+            <form id="messageForm" class="message-form">
 
                 <input
                     type="text"
-                    id="username"
-                    placeholder="اكتب اسمك"
-                    maxlength="30"
+                    id="messageInput"
+                    placeholder="اكتب رسالة..."
                     autocomplete="off"
+                    maxlength="500"
                     required
                 >
 
                 <button type="submit">
-                    دخول
+                    إرسال
                 </button>
 
             </form>
 
-            <p id="loginError" class="error"></p>
+        </section>
 
-        </div>
-
-    </section>
+    </main>
 
 
-    <section class="chat-screen" id="chatScreen" hidden>
-
-        <header class="chat-header">
-
-            <div>
-                <strong>💬 My Chat</strong>
-                <span id="currentUser"></span>
-            </div>
-
-        </header>
-
-
-        <div id="messages" class="messages">
-        </div>
-
-
-        <form id="messageForm" class="message-form">
-
-            <input
-                type="text"
-                id="messageInput"
-                placeholder="اكتب رسالة..."
-                autocomplete="off"
-                maxlength="500"
-                required
-            >
-
-            <button type="submit">
-                إرسال
-            </button>
-
-        </form>
-
-    </section>
-
-</main>
-
-
-<script src="app.js"></script>
-```
+    <script src="app.js"></script>
 
 </body>
 

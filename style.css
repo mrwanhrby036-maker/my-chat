@@ -68,13 +68,20 @@ button {
     margin-bottom: 25px;
 }
 
-#loginForm {
+#loginForm,
+#registerForm {
     display: flex;
     flex-direction: column;
     gap: 12px;
 }
 
-#username {
+.form-title {
+    color: #94a3b8;
+    margin-bottom: 5px !important;
+}
+
+#loginForm input,
+#registerForm input {
     width: 100%;
     padding: 14px 16px;
 
@@ -87,11 +94,13 @@ button {
     outline: none;
 }
 
-#username:focus {
+#loginForm input:focus,
+#registerForm input:focus {
     border-color: #3b82f6;
 }
 
-#loginForm button {
+#loginForm button,
+#registerForm button {
     padding: 14px;
 
     border: none;
@@ -105,16 +114,35 @@ button {
     transition: 0.2s;
 }
 
-#loginForm button:hover {
+#loginForm button:hover,
+#registerForm button:hover {
     background: #1d4ed8;
 }
 
 .error {
     min-height: 20px;
-    margin-top: 12px !important;
+    margin-top: 0 !important;
     margin-bottom: 0 !important;
 
     color: #f87171 !important;
+}
+
+.switch-text {
+    margin-top: 4px !important;
+    margin-bottom: 0 !important;
+
+    font-size: 13px;
+    color: #94a3b8 !important;
+}
+
+.switch-text a {
+    color: #60a5fa;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.switch-text a:hover {
+    text-decoration: underline;
 }
 
 .chat-screen {
@@ -134,6 +162,7 @@ button {
 
     display: flex;
     align-items: center;
+    justify-content: space-between;
 
     background: #1e293b;
     border-bottom: 1px solid #334155;
@@ -142,6 +171,26 @@ button {
 .chat-header strong {
     display: block;
     font-size: 20px;
+}
+
+.logout-btn {
+    padding: 9px 16px;
+
+    border: 1px solid #475569;
+    border-radius: 10px;
+
+    background: transparent;
+    color: #f8fafc;
+
+    font-weight: bold;
+    font-size: 13px;
+
+    transition: 0.2s;
+}
+
+.logout-btn:hover {
+    background: #334155;
+    border-color: #64748b;
 }
 
 #currentUser {

@@ -8,6 +8,8 @@ const API_URL = "https://my-chat-production-2f53.up.railway.app";
 // لما نرفع الـBackend على الإنترنت هنغير السطر
 // فوق فقط إلى رابط السيرفر الحقيقي.
 
+const SESSION_KEY = "myChatUser";
+
 
 
 // ==========================================
@@ -18,10 +20,20 @@ const loginScreen = document.getElementById("loginScreen");
 const chatScreen = document.getElementById("chatScreen");
 
 const loginForm = document.getElementById("loginForm");
-const usernameInput = document.getElementById("username");
+const loginUsernameInput = document.getElementById("loginUsername");
+const loginPasswordInput = document.getElementById("loginPassword");
 const loginError = document.getElementById("loginError");
 
+const registerForm = document.getElementById("registerForm");
+const registerUsernameInput = document.getElementById("registerUsername");
+const registerPasswordInput = document.getElementById("registerPassword");
+const registerError = document.getElementById("registerError");
+
+const showRegisterLink = document.getElementById("showRegister");
+const showLoginLink = document.getElementById("showLogin");
+
 const currentUser = document.getElementById("currentUser");
+const logoutButton = document.getElementById("logoutButton");
 
 const messagesContainer = document.getElementById("messages");
 
@@ -36,6 +48,117 @@ const messageInput = document.getElementById("messageInput");
 
 let user = null;
 
+let refreshInterval = null;
+
+
+
+// ==========================================
+// التبديل بين شاشة الدخول وإنشاء الحساب
+// ==========================================
+
+showRegisterLink.addEventListener("click", function (event) {
+
+    event.preventDefault();
+
+    loginForm.hidden = true;
+    registerForm.hidden = false;
+
+    loginError.textContent = "";
+    registerError.textContent = "";
+
+});
+
+
+showLoginLink.addEventListener("click", function (event) {
+
+    event.preventDefault();
+
+    registerForm.hidden = true;
+    loginForm.hidden = false;
+
+    loginError.textContent = "";
+    registerError.textContent = "";
+
+});
+
+
+
+// ==========================================
+// حفظ / قراءة / مسح الجلسة
+// ==========================================
+
+function saveSession(userData) {
+
+    localStorage.setItem(
+        SESSION_KEY,
+        JSON.stringify(userData)
+    );
+
+}
+
+
+function readSession() {
+
+    const raw = localStorage.getItem(SESSION_KEY);
+
+    if (!raw) {
+        return null;
+    }
+
+    try {
+
+        return JSON.parse(raw);
+
+    } catch (error) {
+
+        return null;
+
+    }
+
+}
+
+
+function clearSession() {
+
+    localStorage.removeItem(SESSION_KEY);
+
+}
+
+
+
+// ==========================================
+// الدخول للشات بعد نجاح تسجيل الدخول/الحساب
+// ==========================================
+
+async function enterChat(userData) {
+
+    user = userData;
+
+    saveSession(user);
+
+    loginScreen.hidden = true;
+    chatScreen.hidden = false;
+
+    currentUser.textContent = `أنت: ${user.name}`;
+
+    await loadMessages();
+
+    messageInput.focus();
+
+    if (refreshInterval) {
+        clearInterval(refreshInterval);
+    }
+
+    refreshInterval = setInterval(function () {
+
+        if (user) {
+            loadMessages();
+        }
+
+    }, 2000);
+
+}
+
 
 
 // ==========================================
@@ -46,10 +169,11 @@ loginForm.addEventListener("submit", async function (event) {
 
     event.preventDefault();
 
-    const name = usernameInput.value.trim();
+    const name = loginUsernameInput.value.trim();
+    const password = loginPasswordInput.value;
 
-    if (!name) {
-        loginError.textContent = "اكتب اسمك الأول";
+    if (!name || !password) {
+        loginError.textContent = "اكتب اسمك وكلمة المرور";
         return;
     }
 
@@ -57,7 +181,7 @@ loginForm.addEventListener("submit", async function (event) {
 
     try {
 
-        const response = await fetch(`${API_URL}/users`, {
+        const response = await fetch(`${API_URL}/login`, {
 
             method: "POST",
 
@@ -66,37 +190,23 @@ loginForm.addEventListener("submit", async function (event) {
             },
 
             body: JSON.stringify({
-                name: name
+                name: name,
+                password: password
             })
 
         });
 
+        const data = await response.json();
 
         if (!response.ok) {
-            throw new Error("فشل تسجيل المستخدم");
+            loginError.textContent =
+                data.error || "فشل تسجيل الدخول";
+            return;
         }
 
+        loginPasswordInput.value = "";
 
-        user = await response.json();
-
-
-        // إخفاء شاشة الدخول
-        loginScreen.hidden = true;
-
-        // إظهار الشات
-        chatScreen.hidden = false;
-
-
-        // عرض اسم المستخدم
-        currentUser.textContent = `أنت: ${user.name}`;
-
-
-        // تحميل الرسائل
-        await loadMessages();
-
-
-        // وضع المؤشر داخل مربع الرسالة
-        messageInput.focus();
+        await enterChat(data);
 
     } catch (error) {
 
@@ -106,6 +216,102 @@ loginForm.addEventListener("submit", async function (event) {
             "حصلت مشكلة في الاتصال بالسيرفر";
 
     }
+
+});
+
+
+
+// ==========================================
+// إنشاء حساب جديد
+// ==========================================
+
+registerForm.addEventListener("submit", async function (event) {
+
+    event.preventDefault();
+
+    const name = registerUsernameInput.value.trim();
+    const password = registerPasswordInput.value;
+
+    if (!name || !password) {
+        registerError.textContent = "اكتب اسمك وكلمة المرور";
+        return;
+    }
+
+    if (password.length < 4) {
+        registerError.textContent =
+            "كلمة المرور لازم تكون 4 حروف على الأقل";
+        return;
+    }
+
+    registerError.textContent = "";
+
+    try {
+
+        const response = await fetch(`${API_URL}/register`, {
+
+            method: "POST",
+
+            headers: {
+                "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify({
+                name: name,
+                password: password
+            })
+
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            registerError.textContent =
+                data.error || "فشل إنشاء الحساب";
+            return;
+        }
+
+        registerPasswordInput.value = "";
+
+        await enterChat(data);
+
+    } catch (error) {
+
+        console.error(error);
+
+        registerError.textContent =
+            "حصلت مشكلة في الاتصال بالسيرفر";
+
+    }
+
+});
+
+
+
+// ==========================================
+// تسجيل الخروج
+// ==========================================
+
+logoutButton.addEventListener("click", function () {
+
+    user = null;
+
+    clearSession();
+
+    if (refreshInterval) {
+        clearInterval(refreshInterval);
+        refreshInterval = null;
+    }
+
+    chatScreen.hidden = true;
+    loginScreen.hidden = false;
+
+    registerForm.hidden = true;
+    loginForm.hidden = false;
+
+    loginUsernameInput.value = "";
+    loginPasswordInput.value = "";
+
+    messagesContainer.innerHTML = "";
 
 });
 
@@ -295,15 +501,15 @@ messageForm.addEventListener(
 
 
 // ==========================================
-// تحديث الرسائل تلقائيًا
+// لو فيه جلسة محفوظة، ادخل الشات على طول
 // ==========================================
 
-// كل 2 ثانية نشوف إذا فيه رسائل جديدة
+(function initSession() {
 
-setInterval(function () {
+    const savedUser = readSession();
 
-    if (user) {
-        loadMessages();
+    if (savedUser && savedUser.name) {
+        enterChat(savedUser);
     }
 
-}, 2000);
+})();

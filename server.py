@@ -1,5 +1,7 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import json
+import hashlib
+import secrets
 
 from main import load_database, save_database
 
@@ -8,6 +10,76 @@ import os
 
 HOST = "0.0.0.0"
 PORT = int(os.environ.get("PORT", 8000))
+
+
+# ==========================================
+# تشفير كلمة المرور
+# ==========================================
+
+def hash_password(password, salt=None):
+
+    if salt is None:
+        salt = secrets.token_hex(16)
+
+    hashed = hashlib.pbkdf2_hmac(
+        "sha256",
+        password.encode("utf-8"),
+        salt.encode("utf-8"),
+        100000
+    )
+
+    return salt, hashed.hex()
+
+
+def verify_password(password, salt, password_hash):
+
+    _, new_hash = hash_password(password, salt)
+
+    return secrets.compare_digest(new_hash, password_hash)
+
+
+# ==========================================
+# دوال مساعدة للمستخدمين
+# ==========================================
+
+def get_users_table(database):
+
+    if "users" not in database:
+
+        database["users"] = {
+            "columns": [
+                "id",
+                "name",
+                "age",
+                "salt",
+                "password_hash"
+            ],
+            "rows": []
+        }
+
+    return database["users"]
+
+
+def find_user_by_name(users, name):
+
+    name_lower = name.strip().lower()
+
+    for user in users:
+
+        if user.get("name", "").strip().lower() == name_lower:
+            return user
+
+    return None
+
+
+def public_user(user):
+
+    # نرجع بيانات المستخدم من غير كلمة المرور
+    return {
+        "id": user["id"],
+        "name": user["name"],
+        "age": user.get("age", 0)
+    }
 
 
 class Server(BaseHTTPRequestHandler):
@@ -50,6 +122,24 @@ class Server(BaseHTTPRequestHandler):
         self.end_headers()
 
         self.wfile.write(response)
+
+
+    # قراءة الـ body بتاع الطلب
+    def read_json_body(self):
+
+        length = int(
+            self.headers.get(
+                "Content-Length",
+                0
+            )
+        )
+
+        body = self.rfile.read(length)
+
+        if not body:
+            return {}
+
+        return json.loads(body.decode("utf-8"))
 
 
     # السماح للمتصفح بإرسال الطلبات
@@ -100,24 +190,16 @@ class Server(BaseHTTPRequestHandler):
             return
 
 
-        # جلب المستخدمين
+        # جلب المستخدمين (من غير كلمة المرور)
         if self.path == "/users":
 
             database = load_database()
 
-            users = database.get(
-                "users",
-                {
-                    "columns": [
-                        "id",
-                        "name",
-                        "age"
-                    ],
-                    "rows": []
-                }
-            )["rows"]
+            users = get_users_table(database)["rows"]
 
-            self.send_json(users)
+            self.send_json(
+                [public_user(user) for user in users]
+            )
 
             return
 
@@ -134,18 +216,7 @@ class Server(BaseHTTPRequestHandler):
         # إضافة رسالة
         if self.path == "/messages":
 
-            length = int(
-                self.headers.get(
-                    "Content-Length",
-                    0
-                )
-            )
-
-            body = self.rfile.read(length)
-
-            data = json.loads(
-                body.decode("utf-8")
-            )
+            data = self.read_json_body()
 
             database = load_database()
 
@@ -185,44 +256,61 @@ class Server(BaseHTTPRequestHandler):
             return
 
 
-        # إضافة مستخدم
-        if self.path == "/users":
+        # إنشاء حساب جديد
+        if self.path == "/register":
 
-            length = int(
-                self.headers.get(
-                    "Content-Length",
-                    0
+            data = self.read_json_body()
+
+            name = data.get("name", "").strip()
+            password = data.get("password", "")
+
+
+            if not name or not password:
+
+                self.send_json(
+                    {"error": "الاسم وكلمة المرور مطلوبين"},
+                    400
                 )
-            )
 
-            body = self.rfile.read(length)
+                return
 
-            data = json.loads(
-                body.decode("utf-8")
-            )
+
+            if len(password) < 4:
+
+                self.send_json(
+                    {"error": "كلمة المرور لازم تكون 4 حروف على الأقل"},
+                    400
+                )
+
+                return
+
 
             database = load_database()
 
+            users_table = get_users_table(database)
 
-            if "users" not in database:
-
-                database["users"] = {
-                    "columns": [
-                        "id",
-                        "name",
-                        "age"
-                    ],
-                    "rows": []
-                }
+            users = users_table["rows"]
 
 
-            users = database["users"]["rows"]
+            if find_user_by_name(users, name):
+
+                self.send_json(
+                    {"error": "الاسم ده مستخدم بالفعل، جرب اسم تاني"},
+                    409
+                )
+
+                return
+
+
+            salt, password_hash = hash_password(password)
 
 
             new_user = {
                 "id": len(users) + 1,
-                "name": data["name"],
-                "age": data.get("age", 0)
+                "name": name,
+                "age": data.get("age", 0),
+                "salt": salt,
+                "password_hash": password_hash
             }
 
 
@@ -232,8 +320,66 @@ class Server(BaseHTTPRequestHandler):
 
 
             self.send_json(
-                new_user,
+                public_user(new_user),
                 201
+            )
+
+            return
+
+
+        # تسجيل الدخول
+        if self.path == "/login":
+
+            data = self.read_json_body()
+
+            name = data.get("name", "").strip()
+            password = data.get("password", "")
+
+
+            if not name or not password:
+
+                self.send_json(
+                    {"error": "الاسم وكلمة المرور مطلوبين"},
+                    400
+                )
+
+                return
+
+
+            database = load_database()
+
+            users = get_users_table(database)["rows"]
+
+            user = find_user_by_name(users, name)
+
+
+            # المستخدم مش موجود، أو حساب قديم من غير كلمة مرور
+            if not user or "salt" not in user or "password_hash" not in user:
+
+                self.send_json(
+                    {"error": "اسم المستخدم أو كلمة المرور غلط"},
+                    401
+                )
+
+                return
+
+
+            if not verify_password(
+                password,
+                user["salt"],
+                user["password_hash"]
+            ):
+
+                self.send_json(
+                    {"error": "اسم المستخدم أو كلمة المرور غلط"},
+                    401
+                )
+
+                return
+
+
+            self.send_json(
+                public_user(user)
             )
 
             return
