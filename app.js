@@ -3,7 +3,7 @@
 // ==========================================
 
 // أثناء التطوير على جهازك
-const API_URL = "https://my-chat-production-2f53.up.railway.app";
+const API_URL = "my-chat-production-2f53.up.railway.app";
 
 // لما نرفع الـBackend على الإنترنت هنغير السطر
 // فوق فقط إلى رابط السيرفر الحقيقي.
