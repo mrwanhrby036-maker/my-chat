@@ -53,6 +53,20 @@ def create_table(name, columns):
     return True
 
 
+def get_or_create_table(database, name, columns):
+
+    if name not in database:
+
+        database[name] = {
+            "columns": columns,
+            "rows": []
+        }
+
+        save_database(database)
+
+    return database[name]
+
+
 def insert_into(table_name, values):
 
     if table_name not in database:

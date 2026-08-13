@@ -2,8 +2,9 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 import json
 import hashlib
 import secrets
+import time
 
-from main import load_database, save_database
+from main import load_database, save_database, get_or_create_table
 
 
 import os
@@ -82,6 +83,71 @@ def public_user(user):
     }
 
 
+# ==========================================
+# إدارة الجلسات (Sessions / Tokens)
+# ==========================================
+
+# مدة صلاحية الجلسة: 7 أيام (بالثواني)
+SESSION_MAX_AGE = 7 * 24 * 60 * 60
+
+
+def get_sessions_table(database):
+
+    return get_or_create_table(
+        database,
+        "sessions",
+        ["token", "user_id", "name", "created_at"]
+    )
+
+
+def create_session(database, user):
+
+    # نمسح أي جلسات قديمة منتهية الصلاحية (تنظيف بسيط)
+    sessions_table = get_sessions_table(database)
+
+    now = int(time.time())
+
+    sessions_table["rows"] = [
+        session for session in sessions_table["rows"]
+        if now - session.get("created_at", 0) < SESSION_MAX_AGE
+    ]
+
+    token = secrets.token_hex(32)
+
+    sessions_table["rows"].append({
+        "token": token,
+        "user_id": user["id"],
+        "name": user["name"],
+        "created_at": now
+    })
+
+    save_database(database)
+
+    return token
+
+
+def find_session_by_token(database, token):
+
+    if not token:
+        return None
+
+    sessions = get_sessions_table(database)["rows"]
+
+    now = int(time.time())
+
+    for session in sessions:
+
+        if session.get("token") == token:
+
+            # الجلسة منتهية الصلاحية
+            if now - session.get("created_at", 0) >= SESSION_MAX_AGE:
+                return None
+
+            return session
+
+    return None
+
+
 class Server(BaseHTTPRequestHandler):
 
     # إرسال JSON
@@ -122,6 +188,20 @@ class Server(BaseHTTPRequestHandler):
         self.end_headers()
 
         self.wfile.write(response)
+
+
+    # التحقق من هوية صاحب الطلب من الـ Authorization header
+    # بيرجع الـ session لو الـtoken صح، أو None لو غلط/مفقود
+    def get_authenticated_session(self, database):
+
+        header = self.headers.get("Authorization", "")
+
+        if not header.startswith("Bearer "):
+            return None
+
+        token = header[len("Bearer "):].strip()
+
+        return find_session_by_token(database, token)
 
 
     # قراءة الـ body بتاع الطلب
@@ -173,6 +253,19 @@ class Server(BaseHTTPRequestHandler):
 
             database = load_database()
 
+            # لازم تسجل دخولك عشان تقرأ الرسائل
+            session = self.get_authenticated_session(database)
+
+            if session is None:
+
+                self.send_json(
+                    {"error": "لازم تسجل دخولك تاني"},
+                    401
+                )
+
+                return
+
+
             messages = database.get(
                 "messages",
                 {
@@ -195,6 +288,19 @@ class Server(BaseHTTPRequestHandler):
 
             database = load_database()
 
+            # نفس الحماية: لازم تكون مسجل دخول
+            session = self.get_authenticated_session(database)
+
+            if session is None:
+
+                self.send_json(
+                    {"error": "لازم تسجل دخولك تاني"},
+                    401
+                )
+
+                return
+
+
             users = get_users_table(database)["rows"]
 
             self.send_json(
@@ -216,9 +322,33 @@ class Server(BaseHTTPRequestHandler):
         # إضافة رسالة
         if self.path == "/messages":
 
+            database = load_database()
+
+            # لازم يكون فيه token صحيح قبل ما نقبل أي رسالة
+            session = self.get_authenticated_session(database)
+
+            if session is None:
+
+                self.send_json(
+                    {"error": "لازم تسجل دخولك تاني"},
+                    401
+                )
+
+                return
+
+
             data = self.read_json_body()
 
-            database = load_database()
+            message_text = data.get("message", "").strip()
+
+            if not message_text:
+
+                self.send_json(
+                    {"error": "اكتب رسالة"},
+                    400
+                )
+
+                return
 
 
             if "messages" not in database:
@@ -238,8 +368,10 @@ class Server(BaseHTTPRequestHandler):
 
             new_message = {
                 "id": len(messages) + 1,
-                "name": data["name"],
-                "message": data["message"]
+                # الاسم جاي من الـsession نفسها، مش من العميل
+                # عشان محدش يقدر ينتحل شخصية حد تاني
+                "name": session["name"],
+                "message": message_text
             }
 
 
@@ -319,8 +451,14 @@ class Server(BaseHTTPRequestHandler):
             save_database(database)
 
 
+            token = create_session(database, new_user)
+
+            response_data = public_user(new_user)
+            response_data["token"] = token
+
+
             self.send_json(
-                public_user(new_user),
+                response_data,
                 201
             )
 
@@ -378,9 +516,39 @@ class Server(BaseHTTPRequestHandler):
                 return
 
 
+            token = create_session(database, user)
+
+            response_data = public_user(user)
+            response_data["token"] = token
+
+
             self.send_json(
-                public_user(user)
+                response_data
             )
+
+            return
+
+
+        # تسجيل الخروج - إلغاء الـtoken من السيرفر
+        if self.path == "/logout":
+
+            database = load_database()
+
+            session = self.get_authenticated_session(database)
+
+            if session is not None:
+
+                sessions_table = get_sessions_table(database)
+
+                sessions_table["rows"] = [
+                    row for row in sessions_table["rows"]
+                    if row.get("token") != session.get("token")
+                ]
+
+                save_database(database)
+
+
+            self.send_json({"ok": True})
 
             return
 

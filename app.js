@@ -132,6 +132,19 @@ function clearSession() {
 
 async function enterChat(userData) {
 
+    // لازم يكون فيه token جاي من السيرفر
+    // (لو فيه جلسة قديمة متخزنة من غير token، نرفضها)
+    if (!userData || !userData.token) {
+
+        clearSession();
+
+        loginError.textContent =
+            "لازم تسجل دخولك تاني";
+
+        return;
+
+    }
+
     user = userData;
 
     saveSession(user);
@@ -293,6 +306,18 @@ registerForm.addEventListener("submit", async function (event) {
 
 logoutButton.addEventListener("click", function () {
 
+    // نبلّغ السيرفر إنه يلغي الـtoken (من غير ما ننتظر الرد)
+    if (user && user.token) {
+
+        fetch(`${API_URL}/logout`, {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${user.token}`
+            }
+        }).catch(function () {});
+
+    }
+
     user = null;
 
     clearSession();
@@ -325,18 +350,29 @@ async function loadMessages() {
 
     try {
 
+        if (!user || !user.token) {
+            return;
+        }
+
         const response = await fetch(
-            `${API_URL}/messages`
+            `${API_URL}/messages`,
+            {
+                headers: {
+                    "Authorization": `Bearer ${user.token}`
+                }
+            }
         );
 
+        if (response.status === 401) {
+            logoutButton.click();
+            return;
+        }
 
         if (!response.ok) {
             throw new Error("فشل تحميل الرسائل");
         }
 
-
         const messages = await response.json();
-
 
         displayMessages(messages);
 
@@ -447,19 +483,42 @@ messageForm.addEventListener(
 
                     headers: {
                         "Content-Type":
-                            "application/json"
+                            "application/json",
+
+                        // بنبعت الـtoken عشان السيرفر
+                        // يتأكد إحنا فعلاً مين
+                        "Authorization":
+                            `Bearer ${user.token}`
                     },
 
                     body: JSON.stringify({
 
-                        name: user.name,
-
                         message: message
+
+                        // ملحوظة: مبقناش نبعت "name" من هنا
+                        // خالص، السيرفر هو اللي هياخد الاسم
+                        // من الـtoken نفسه عشان محدش يقدر
+                        // ينتحل شخصية حد تاني
 
                     })
 
                 }
             );
+
+
+            // لو الـtoken غلط أو خلصت صلاحيته، نرجّعه
+            // لشاشة الدخول تاني
+            if (response.status === 401) {
+
+                logoutButton.click();
+
+                alert(
+                    "جلستك خلصت، سجل دخولك تاني"
+                );
+
+                return;
+
+            }
 
 
             if (!response.ok) {
