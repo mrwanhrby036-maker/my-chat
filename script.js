@@ -5,6 +5,164 @@
 
 
 /* =========================================
+   الأيقونات (SVG)
+========================================= */
+
+function icon(name, className) {
+
+    const cls = className
+        ? `icon ${className}`
+        : "icon";
+
+    return `
+        <svg
+            class="${cls}"
+            aria-hidden="true"
+        >
+            <use href="#i-${name}"/>
+        </svg>
+    `;
+}
+
+
+/* =========================================
+   التنبيهات (بدل alert)
+========================================= */
+
+const TOAST_ICONS = {
+
+    success: "check",
+
+    error: "x",
+
+    warn: "warning",
+
+    info: "chat"
+};
+
+
+function notify(message, type = "info") {
+
+    const host =
+        document.getElementById("toastHost");
+
+    if (!host) {
+        return;
+    }
+
+
+    const toast =
+        document.createElement("div");
+
+    toast.className = `toast ${type}`;
+
+    toast.innerHTML =
+        icon(TOAST_ICONS[type] || "chat") +
+        `<span>${message}</span>`;
+
+
+    host.appendChild(toast);
+
+
+    requestAnimationFrame(() => {
+        toast.classList.add("show");
+    });
+
+
+    setTimeout(() => {
+
+        toast.classList.remove("show");
+
+        setTimeout(() => toast.remove(), 300);
+
+    }, 3200);
+}
+
+
+/* =========================================
+   نافذة كلمة المرور (بدل prompt)
+========================================= */
+
+function askPassword(title) {
+
+    return new Promise(resolve => {
+
+        const backdrop =
+            document.getElementById("pwModal");
+
+        const input =
+            document.getElementById("pwInput");
+
+        const okBtn =
+            document.getElementById("pwOk");
+
+        const cancelBtn =
+            document.getElementById("pwCancel");
+
+
+        document.getElementById("pwTitle").textContent =
+            title;
+
+
+        const close = value => {
+
+            backdrop.classList.remove("open");
+
+            okBtn.removeEventListener("click", submit);
+
+            cancelBtn.removeEventListener("click", cancel);
+
+            input.removeEventListener("keydown", onKey);
+
+            document.removeEventListener("keydown", onDocKey);
+
+            resolve(value);
+        };
+
+
+        const submit = () => close(input.value);
+
+        const cancel = () => close(null);
+
+
+        const onKey = event => {
+
+            if (event.key === "Enter") {
+
+                event.preventDefault();
+
+                submit();
+            }
+        };
+
+
+        const onDocKey = event => {
+
+            if (event.key === "Escape") {
+                cancel();
+            }
+        };
+
+
+        okBtn.addEventListener("click", submit);
+
+        cancelBtn.addEventListener("click", cancel);
+
+        input.addEventListener("keydown", onKey);
+
+        document.addEventListener("keydown", onDocKey);
+
+
+        input.value = "";
+
+        backdrop.classList.add("open");
+
+        setTimeout(() => input.focus(), 60);
+    });
+}
+
+
+/* =========================================
    التنقل بين الصفحات
 ========================================= */
 
@@ -40,6 +198,17 @@ function goHome() {
 
 const themeBtn = document.getElementById("themeBtn");
 
+
+function setThemeIcon() {
+
+    const darkMode =
+        document.body.classList.contains("dark");
+
+    themeBtn.innerHTML =
+        icon(darkMode ? "sun" : "moon");
+}
+
+
 themeBtn.addEventListener("click", () => {
 
     document.body.classList.toggle("dark");
@@ -52,32 +221,38 @@ themeBtn.addEventListener("click", () => {
         darkMode
     );
 
-    themeBtn.textContent =
-        darkMode ? "☀️" : "🌙";
+    setThemeIcon();
 });
 
 
 if (localStorage.getItem("darkMode") === "true") {
 
     document.body.classList.add("dark");
-
-    themeBtn.textContent = "☀️";
 }
+
+
+setThemeIcon();
 
 
 /* =========================================
    ركن التلخيصات
 ========================================= */
 
-function adminSummaryLogin() {
+async function adminSummaryLogin() {
 
     const password =
-        prompt("🔐 اكتب كلمة مرور صاحب المنصة:");
+        await askPassword("دخول صاحب المنصة");
+
 
     /*
        كلمة المرور دي للتجربة فقط.
        في المنصة الحقيقية هنعمل تسجيل دخول آمن.
     */
+
+    if (password === null) {
+        return;
+    }
+
 
     if (password === "05329") {
 
@@ -85,11 +260,11 @@ function adminSummaryLogin() {
             .getElementById("summaryAdmin")
             .classList.remove("hidden");
 
-        alert("✅ تم تسجيل الدخول");
+        notify("تم تسجيل الدخول", "success");
 
     } else {
 
-        alert("❌ كلمة المرور غير صحيحة");
+        notify("كلمة المرور غير صحيحة", "error");
     }
 }
 
@@ -107,7 +282,7 @@ function publishSummary() {
 
     if (!name || !subject || !fileInput.files[0]) {
 
-        alert("⚠️ اكتب اسم الملخص والمادة واختر ملفًا.");
+        notify("اكتب اسم الملخص والمادة واختر ملفًا.", "warn");
 
         return;
     }
@@ -128,7 +303,10 @@ function publishSummary() {
 
         <div>
 
-            <h3>📄 ${escapeHTML(name)}</h3>
+            <h3>
+                ${icon("doc")}
+                ${escapeHTML(name)}
+            </h3>
 
             <small>
                 المادة: ${escapeHTML(subject)}
@@ -162,7 +340,7 @@ function publishSummary() {
     document.getElementById("summarySubject").value = "";
     fileInput.value = "";
 
-    addUpdate("📚 تم نشر ملخص جديد");
+    addUpdate("book", "تم نشر ملخص جديد");
 }
 
 
@@ -170,10 +348,16 @@ function publishSummary() {
    ركن الأسئلة
 ========================================= */
 
-function questionAdminLogin() {
+async function questionAdminLogin() {
 
     const password =
-        prompt("🔐 اكتب كلمة مرور الإدارة:");
+        await askPassword("دخول الإدارة");
+
+
+    if (password === null) {
+        return;
+    }
+
 
     if (password === "55993") {
 
@@ -181,11 +365,11 @@ function questionAdminLogin() {
             .getElementById("questionAdmin")
             .classList.remove("hidden");
 
-        alert("✅ تم فتح لوحة إنشاء الأسئلة");
+        notify("تم فتح لوحة إنشاء الأسئلة", "success");
 
     } else {
 
-        alert("❌ كلمة المرور غير صحيحة");
+        notify("كلمة المرور غير صحيحة", "error");
     }
 }
 
@@ -220,7 +404,10 @@ function publishQuestion() {
         correct === ""
     ) {
 
-        alert("⚠️ لازم تكمل السؤال والاختيارات وتحدد الإجابة الصحيحة.");
+        notify(
+            "لازم تكمل السؤال والاختيارات وتحدد الإجابة الصحيحة.",
+            "warn"
+        );
 
         return;
     }
@@ -231,6 +418,8 @@ function publishQuestion() {
 
     card.className = "question-card";
 
+
+    const questionId = `question-${Date.now()}`;
 
     let optionsHTML = "";
 
@@ -243,11 +432,11 @@ function publishQuestion() {
 
                 <input
                     type="radio"
-                    name="question-${Date.now()}"
+                    name="${questionId}"
                     value="${index}"
                 >
 
-                ${escapeHTML(option)}
+                <span>${escapeHTML(option)}</span>
 
             </label>
         `;
@@ -257,13 +446,15 @@ function publishQuestion() {
     card.innerHTML = `
 
         <h2>
-            ❓ ${escapeHTML(question)}
+            ${icon("question")}
+            <span>${escapeHTML(question)}</span>
         </h2>
 
         ${optionsHTML}
 
         <button onclick="checkAnswer(this, ${correct})">
-            ✅ تأكيد الإجابة
+            ${icon("check")}
+            تأكيد الإجابة
         </button>
 
         <div class="result"></div>
@@ -284,7 +475,7 @@ function publishQuestion() {
 
     document.getElementById("correctAnswer").value = "";
 
-    addUpdate("❓ تم نشر سؤال جديد");
+    addUpdate("question", "تم نشر سؤال جديد");
 }
 
 
@@ -304,8 +495,11 @@ function checkAnswer(button, correctAnswer) {
 
     if (!selected) {
 
-        result.textContent =
-            "⚠️ اختار إجابة أولًا.";
+        result.className = "result is-warn";
+
+        result.innerHTML =
+            icon("warning") +
+            "<span>اختار إجابة أولًا.</span>";
 
         return;
     }
@@ -316,13 +510,19 @@ function checkAnswer(button, correctAnswer) {
         Number(correctAnswer)
     ) {
 
-        result.textContent =
-            "🎉 إجابة صحيحة! أحسنت.";
+        result.className = "result is-ok";
+
+        result.innerHTML =
+            icon("party") +
+            "<span>إجابة صحيحة! أحسنت.</span>";
 
     } else {
 
-        result.textContent =
-            "❌ إجابة غير صحيحة. حاول مرة أخرى.";
+        result.className = "result is-bad";
+
+        result.innerHTML =
+            icon("x") +
+            "<span>إجابة غير صحيحة. حاول مرة أخرى.</span>";
     }
 }
 
@@ -344,7 +544,7 @@ function publishSharedFile() {
 
     if (!title || !fileInput.files[0]) {
 
-        alert("⚠️ اكتب اسم المشاركة واختر ملفًا.");
+        notify("اكتب اسم المشاركة واختر ملفًا.", "warn");
 
         return;
     }
@@ -382,7 +582,7 @@ function publishSharedFile() {
 
     if (!allowedTypes.includes(file.type)) {
 
-        alert("❌ نوع الملف غير مسموح به.");
+        notify("نوع الملف غير مسموح به.", "error");
 
         return;
     }
@@ -402,7 +602,10 @@ function publishSharedFile() {
 
         <div>
 
-            <h3>🤝 ${escapeHTML(title)}</h3>
+            <h3>
+                ${icon("users")}
+                ${escapeHTML(title)}
+            </h3>
 
             <small>
                 تمت المشاركة الآن
@@ -439,7 +642,7 @@ function publishSharedFile() {
     fileInput.value = "";
 
 
-    addUpdate("🤝 تمت إضافة مشاركة جديدة");
+    addUpdate("users", "تمت إضافة مشاركة جديدة");
 }
 
 
@@ -471,7 +674,8 @@ function sendMessage() {
     message.innerHTML = `
 
         <span class="message-name">
-            👨‍🎓 طالب
+            ${icon("user")}
+            طالب
         </span>
 
         <p>
@@ -499,7 +703,7 @@ function sendMessage() {
    آخر التحديثات
 ========================================= */
 
-function addUpdate(text) {
+function addUpdate(iconName, text) {
 
     const list =
         document.getElementById("updatesList");
@@ -525,12 +729,14 @@ function addUpdate(text) {
         <div>
 
             <strong>
+                ${icon(iconName)}
                 ${escapeHTML(text)}
             </strong>
 
         </div>
 
         <small>
+            ${icon("clock")}
             الآن
         </small>
     `;

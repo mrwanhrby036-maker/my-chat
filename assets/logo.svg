@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-label="شعار أبطال البكالوريا">
+    <defs>
+        <linearGradient id="ablShield" x1="0.1" y1="0" x2="0.9" y2="1">
+            <stop offset="0" stop-color="#4a76ff"/>
+            <stop offset="0.55" stop-color="#2f5ae0"/>
+            <stop offset="1" stop-color="#1b349c"/>
+        </linearGradient>
+        <linearGradient id="ablGold" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#ffd764"/>
+            <stop offset="1" stop-color="#ef960f"/>
+        </linearGradient>
+    </defs>
+
+    <!-- الدرع -->
+    <path d="M48 4 84 15v27c0 20.6-14.6 35.6-36 42C26.6 77.6 12 62.6 12 42V15Z" fill="url(#ablShield)"/>
+    <path d="M48 9.6 78.6 19v23c0 17.6-12.2 30.4-30.6 36.4C29.6 72.4 17.4 59.6 17.4 42V19Z"
+          fill="none" stroke="#ffffff" stroke-opacity="0.26" stroke-width="2"/>
+
+    <!-- قبعة التخرج -->
+    <path d="M48 24 74 35 48 46 22 35Z" fill="#ffffff"/>
+    <path d="M33 39v9.6c0 3.6 6.7 6.5 15 6.5s15-2.9 15-6.5V39"
+          fill="none" stroke="#ffffff" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <!-- الشرابة -->
+    <path d="M70 36.2V47" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
+    <circle cx="70" cy="51.4" r="4.4" fill="url(#ablGold)" stroke="#ffffff" stroke-width="1.6"/>
+</svg>
