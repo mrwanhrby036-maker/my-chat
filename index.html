@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>أبطال البكالوريا</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- ================= HEADER ================= -->
+
+    <header class="top-bar">
+
+        <div class="logo-small">
+            🏆 أبطال البكالوريا
+        </div>
+
+        <button id="themeBtn" class="theme-btn">
+            🌙
+        </button>
+
+    </header>
+
+
+    <!-- ================= HOME ================= -->
+
+    <main id="homePage">
+
+        <section class="hero">
+
+            <!--
+            الصورة هنضيفها بعدين.
+            اسم الصورة المقترح:
+            hero.jpg
+            -->
+
+            <div class="hero-overlay">
+
+                <div class="trophy">🏆</div>
+
+                <h1>أبطال البكالوريا</h1>
+
+                <p>
+                    معًا نحو النجاح والتفوق
+                </p>
+
+            </div>
+
+        </section>
+
+
+        <!-- آخر التحديثات -->
+
+        <section class="updates">
+
+            <h2>🆕 آخر التحديثات</h2>
+
+            <div id="updatesList">
+
+                <p class="empty">
+                    لا توجد تحديثات حاليًا
+                </p>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================= الأقسام ================= -->
+
+        <section class="sections">
+
+            <button class="main-card" onclick="openPage('summariesPage')">
+
+                <div class="card-icon">
+                    📚
+                </div>
+
+                <div>
+                    <h2>ركن التلخيصات</h2>
+
+                    <p>
+                        ملخصات ومراجعات تساعدك في المذاكرة
+                    </p>
+                </div>
+
+                <span class="arrow">←</span>
+
+            </button>
+
+
+            <button class="main-card" onclick="openPage('questionsPage')">
+
+                <div class="card-icon">
+                    ❓
+                </div>
+
+                <div>
+                    <h2>ركن الأسئلة</h2>
+
+                    <p>
+                        جاوب على الأسئلة واختبر نفسك
+                    </p>
+                </div>
+
+                <span class="arrow">←</span>
+
+            </button>
+
+
+            <button class="main-card" onclick="openPage('sharePage')">
+
+                <div class="card-icon">
+                    🤝
+                </div>
+
+                <div>
+                    <h2>فيد غيرك</h2>
+
+                    <p>
+                        شارك ملفًا أو صورة مفيدة مع الطلاب
+                    </p>
+                </div>
+
+                <span class="arrow">←</span>
+
+            </button>
+
+
+            <button class="main-card" onclick="openPage('chatPage')">
+
+                <div class="card-icon">
+                    💬
+                </div>
+
+                <div>
+                    <h2>اسأل وإحنا هنرد عليك</h2>
+
+                    <p>
+                        اسأل عن أي حاجة في المنصة
+                    </p>
+                </div>
+
+                <span class="arrow">←</span>
+
+            </button>
+
+        </section>
+
+    </main>
+
+
+    <!-- ================= التلخيصات ================= -->
+
+    <section id="summariesPage" class="page">
+
+        <div class="page-header">
+
+            <button class="back-btn" onclick="goHome()">
+                ← الرئيسية
+            </button>
+
+            <h1>📚 ركن التلخيصات</h1>
+
+        </div>
+
+
+        <div class="admin-box">
+
+            <h2>👨‍💼 إدارة التلخيصات</h2>
+
+            <p>
+                هذه المنطقة لصاحب المنصة فقط.
+            </p>
+
+            <button onclick="adminSummaryLogin()">
+                🔐 دخول صاحب المنصة
+            </button>
+
+        </div>
+
+
+        <div id="summaryAdmin" class="hidden">
+
+            <h2>➕ إضافة ملخص</h2>
+
+            <input
+                type="text"
+                id="summaryName"
+                placeholder="اسم الملخص"
+            >
+
+            <input
+                type="text"
+                id="summarySubject"
+                placeholder="المادة"
+            >
+
+            <input
+                type="file"
+                id="summaryFile"
+            >
+
+            <button onclick="publishSummary()">
+                📤 نشر الملخص
+            </button>
+
+        </div>
+
+
+        <div class="content-box">
+
+            <h2>📚 الملفات المنشورة</h2>
+
+            <div id="summaryList">
+
+                <p class="empty">
+                    لا توجد ملخصات منشورة حتى الآن
+                </p>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- ================= الأسئلة ================= -->
+
+    <section id="questionsPage" class="page">
+
+        <div class="page-header">
+
+            <button class="back-btn" onclick="goHome()">
+                ← الرئيسية
+            </button>
+
+            <h1>❓ ركن الأسئلة</h1>
+
+        </div>
+
+
+        <div class="admin-box">
+
+            <h2>👨‍💼 إنشاء سؤال</h2>
+
+            <button onclick="questionAdminLogin()">
+                🔐 دخول الإدارة
+            </button>
+
+        </div>
+
+
+        <div id="questionAdmin" class="hidden">
+
+            <input
+                type="text"
+                id="questionText"
+                placeholder="اكتب السؤال هنا"
+            >
+
+            <input
+                type="text"
+                id="option1"
+                placeholder="الاختيار الأول"
+            >
+
+            <input
+                type="text"
+                id="option2"
+                placeholder="الاختيار الثاني"
+            >
+
+            <input
+                type="text"
+                id="option3"
+                placeholder="الاختيار الثالث"
+            >
+
+            <input
+                type="text"
+                id="option4"
+                placeholder="الاختيار الرابع"
+            >
+
+            <select id="correctAnswer">
+
+                <option value="">
+                    اختر الإجابة الصحيحة
+                </option>
+
+                <option value="0">الاختيار الأول</option>
+                <option value="1">الاختيار الثاني</option>
+                <option value="2">الاختيار الثالث</option>
+                <option value="3">الاختيار الرابع</option>
+
+            </select>
+
+
+            <button onclick="publishQuestion()">
+                📤 نشر السؤال
+            </button>
+
+        </div>
+
+
+        <div id="questionList"></div>
+
+    </section>
+
+
+    <!-- ================= فيد غيرك ================= -->
+
+    <section id="sharePage" class="page">
+
+        <div class="page-header">
+
+            <button class="back-btn" onclick="goHome()">
+                ← الرئيسية
+            </button>
+
+            <h1>🤝 فيد غيرك</h1>
+
+        </div>
+
+
+        <div class="content-box">
+
+            <h2>📤 شارك حاجة مفيدة</h2>
+
+            <p>
+                يمكنك مشاركة ملف أو صورة ليستفيد منها باقي الطلاب.
+            </p>
+
+
+            <input
+                type="text"
+                id="shareTitle"
+                placeholder="اسم الملف أو الصورة"
+            >
+
+            <input
+                type="file"
+                id="shareFile"
+                accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,image/*"
+            >
+
+            <button onclick="publishSharedFile()">
+                🚀 انشر
+            </button>
+
+        </div>
+
+
+        <div class="content-box">
+
+            <h2>🌟 المشاركات</h2>
+
+            <div id="sharedList">
+
+                <p class="empty">
+                    لا توجد مشاركات حتى الآن
+                </p>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- ================= الشات ================= -->
+
+    <section id="chatPage" class="page chat-page">
+
+        <div class="chat-header">
+
+            <button class="back-btn" onclick="goHome()">
+                ←
+            </button>
+
+            <div>
+                <strong>💬 اسأل وإحنا هنرد عليك</strong>
+
+                <small>
+                    أبطال البكالوريا
+                </small>
+            </div>
+
+        </div>
+
+
+        <div id="chatMessages" class="chat-messages">
+
+            <div class="message received">
+
+                <span class="message-name">
+                    👨‍🏫 الإدارة
+                </span>
+
+                <p>
+                    أهلاً بيك 👋
+                    اكتب سؤالك وإحنا هنرد عليك.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="chat-input">
+
+            <input
+                type="text"
+                id="chatInput"
+                placeholder="اكتب سؤالك..."
+                onkeydown="if(event.key === 'Enter') sendMessage()"
+            >
+
+            <button onclick="sendMessage()">
+                ➤
+            </button>
+
+        </div>
+
+    </section>
+
+
+    <!-- ================= FOOTER ================= -->
+
+    <footer>
+
+        <h2>
+            🏆 أبطال البكالوريا
+        </h2>
+
+        <p>
+            ﴿منصة تعليمية تحت إشراف الطالب عبد الله يوسف وتصميم يوسف محمد﴾
+        </p>
+
+    </footer>
+
+
+    <script src="script.js"></script>
+
+</body>
+</html>

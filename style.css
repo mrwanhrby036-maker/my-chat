@@ -1,0 +1,898 @@
+/* ================================
+   المتغيرات
+================================ */
+
+:root {
+
+    --bg: #f4f7fb;
+    --card: #ffffff;
+    --text: #172033;
+    --muted: #687386;
+    --primary: #315bea;
+    --primary-dark: #2345bd;
+    --border: #e2e7f0;
+
+    --shadow:
+        0 10px 30px rgba(0, 0, 0, 0.08);
+}
+
+
+body.dark {
+
+    --bg: #0f1420;
+    --card: #181f2e;
+    --text: #f2f5ff;
+    --muted: #aab3c5;
+    --primary: #6684ff;
+    --primary-dark: #4c68dc;
+    --border: #293246;
+
+    --shadow:
+        0 10px 30px rgba(0, 0, 0, 0.35);
+}
+
+
+/* ================================
+   الأساسيات
+================================ */
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+
+    margin: 0;
+
+    background: var(--bg);
+
+    color: var(--text);
+
+    font-family:
+        Arial,
+        Tahoma,
+        sans-serif;
+
+    transition:
+        background 0.3s,
+        color 0.3s;
+}
+
+
+/* ================================
+   الشريط العلوي
+================================ */
+
+.top-bar {
+
+    height: 65px;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    padding: 0 20px;
+
+    background: var(--card);
+
+    border-bottom:
+        1px solid var(--border);
+
+    position: sticky;
+
+    top: 0;
+
+    z-index: 100;
+}
+
+
+.logo-small {
+
+    font-size: 18px;
+
+    font-weight: bold;
+}
+
+
+.theme-btn {
+
+    width: 45px;
+
+    height: 45px;
+
+    border: none;
+
+    border-radius: 50%;
+
+    background: var(--bg);
+
+    color: var(--text);
+
+    font-size: 20px;
+
+    cursor: pointer;
+}
+
+
+/* ================================
+   Hero
+================================ */
+
+.hero {
+
+    min-height: 400px;
+
+    margin: 0;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    text-align: center;
+
+    position: relative;
+
+    overflow: hidden;
+
+    background:
+
+        radial-gradient(
+            circle at center,
+            rgba(49, 91, 234, 0.25),
+            transparent 60%
+        );
+}
+
+
+.hero-overlay {
+
+    padding: 70px 20px;
+
+    width: 100%;
+
+    backdrop-filter: blur(2px);
+}
+
+
+.trophy {
+
+    font-size: 75px;
+
+    margin-bottom: 10px;
+
+    animation: float 3s ease-in-out infinite;
+}
+
+
+@keyframes float {
+
+    0%, 100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-12px);
+    }
+}
+
+
+.hero h1 {
+
+    font-size: clamp(42px, 10vw, 85px);
+
+    margin: 10px 0;
+
+    font-weight: 900;
+
+    background:
+        linear-gradient(
+            90deg,
+            var(--primary),
+            #8b5cf6
+        );
+
+    -webkit-background-clip: text;
+
+    color: transparent;
+}
+
+
+.hero p {
+
+    font-size: 20px;
+
+    color: var(--muted);
+}
+
+
+/* ================================
+   الأقسام
+================================ */
+
+.sections {
+
+    max-width: 850px;
+
+    margin: 50px auto;
+
+    padding: 0 20px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 28px;
+}
+
+
+.main-card {
+
+    width: 100%;
+
+    min-height: 130px;
+
+    border: 1px solid var(--border);
+
+    border-radius: 25px;
+
+    background: var(--card);
+
+    color: var(--text);
+
+    box-shadow: var(--shadow);
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 20px;
+
+    padding: 25px;
+
+    text-align: right;
+
+    cursor: pointer;
+
+    transition: 0.25s;
+
+    position: relative;
+
+    overflow: hidden;
+}
+
+
+.main-card::before {
+
+    content: "";
+
+    position: absolute;
+
+    right: 0;
+
+    top: 0;
+
+    width: 6px;
+
+    height: 100%;
+
+    background: var(--primary);
+}
+
+
+.main-card:hover {
+
+    transform: translateY(-5px);
+
+    border-color: var(--primary);
+}
+
+
+.card-icon {
+
+    min-width: 65px;
+
+    height: 65px;
+
+    border-radius: 20px;
+
+    background: rgba(49, 91, 234, 0.12);
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    font-size: 32px;
+}
+
+
+.main-card h2 {
+
+    margin: 0 0 8px;
+
+    font-size: 22px;
+}
+
+
+.main-card p {
+
+    margin: 0;
+
+    color: var(--muted);
+
+    line-height: 1.6;
+}
+
+
+.arrow {
+
+    margin-right: auto;
+
+    font-size: 25px;
+
+    color: var(--primary);
+}
+
+
+/* ================================
+   التحديثات
+================================ */
+
+.updates {
+
+    max-width: 850px;
+
+    margin: 30px auto;
+
+    padding: 0 20px;
+}
+
+
+.updates h2 {
+
+    text-align: center;
+}
+
+
+.empty {
+
+    color: var(--muted);
+
+    text-align: center;
+
+    padding: 30px;
+}
+
+
+/* ================================
+   الصفحات الداخلية
+================================ */
+
+.page {
+
+    display: none;
+
+    min-height: 80vh;
+
+    max-width: 900px;
+
+    margin: auto;
+
+    padding: 30px 20px 70px;
+}
+
+
+.page.active {
+
+    display: block;
+}
+
+
+.page-header {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 15px;
+
+    margin-bottom: 30px;
+
+    flex-wrap: wrap;
+}
+
+
+.page-header h1 {
+
+    margin: 0;
+}
+
+
+/* ================================
+   الأزرار
+================================ */
+
+button {
+
+    font-family: inherit;
+}
+
+
+.back-btn {
+
+    border: none;
+
+    background: var(--card);
+
+    color: var(--text);
+
+    border: 1px solid var(--border);
+
+    padding: 12px 18px;
+
+    border-radius: 12px;
+
+    cursor: pointer;
+}
+
+
+.admin-box,
+.content-box {
+
+    background: var(--card);
+
+    border: 1px solid var(--border);
+
+    border-radius: 22px;
+
+    padding: 25px;
+
+    margin: 25px 0;
+
+    box-shadow: var(--shadow);
+}
+
+
+.admin-box button,
+.content-box button,
+#questionAdmin button {
+
+    background: var(--primary);
+
+    color: white;
+
+    border: none;
+
+    padding: 14px 20px;
+
+    border-radius: 12px;
+
+    cursor: pointer;
+
+    font-size: 16px;
+
+    margin-top: 10px;
+}
+
+
+/* ================================
+   الإدخال
+================================ */
+
+input,
+select {
+
+    width: 100%;
+
+    padding: 15px;
+
+    margin: 8px 0;
+
+    border-radius: 12px;
+
+    border: 1px solid var(--border);
+
+    background: var(--bg);
+
+    color: var(--text);
+
+    font-family: inherit;
+
+    font-size: 16px;
+
+    outline: none;
+}
+
+
+input:focus,
+select:focus {
+
+    border-color: var(--primary);
+}
+
+
+.hidden {
+
+    display: none;
+}
+
+
+/* ================================
+   كروت الملفات
+================================ */
+
+.file-card {
+
+    background: var(--bg);
+
+    border: 1px solid var(--border);
+
+    border-radius: 17px;
+
+    padding: 18px;
+
+    margin: 12px 0;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 15px;
+
+    flex-wrap: wrap;
+}
+
+
+.file-card h3 {
+
+    margin: 0 0 5px;
+}
+
+
+.file-card small {
+
+    color: var(--muted);
+}
+
+
+.file-card a {
+
+    text-decoration: none;
+
+    background: var(--primary);
+
+    color: white;
+
+    padding: 10px 15px;
+
+    border-radius: 10px;
+}
+
+
+/* ================================
+   الأسئلة
+================================ */
+
+.question-card {
+
+    background: var(--card);
+
+    border: 1px solid var(--border);
+
+    border-radius: 20px;
+
+    padding: 22px;
+
+    margin: 20px 0;
+
+    box-shadow: var(--shadow);
+}
+
+
+.question-card h2 {
+
+    margin-top: 0;
+}
+
+
+.option {
+
+    display: block;
+
+    padding: 14px;
+
+    margin: 10px 0;
+
+    border: 1px solid var(--border);
+
+    border-radius: 12px;
+
+    cursor: pointer;
+
+    background: var(--bg);
+}
+
+
+.option:hover {
+
+    border-color: var(--primary);
+}
+
+
+.result {
+
+    margin-top: 15px;
+
+    font-weight: bold;
+}
+
+
+/* ================================
+   الشات
+================================ */
+
+.chat-page {
+
+    max-width: 700px;
+
+    height: calc(100vh - 65px);
+
+    padding: 0;
+
+    position: relative;
+}
+
+
+.chat-header {
+
+    height: 70px;
+
+    background: var(--card);
+
+    border-bottom: 1px solid var(--border);
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 15px;
+
+    padding: 10px 15px;
+
+    position: sticky;
+
+    top: 65px;
+
+    z-index: 5;
+}
+
+
+.chat-header strong {
+
+    display: block;
+}
+
+
+.chat-header small {
+
+    color: #22a06b;
+}
+
+
+.chat-messages {
+
+    height: calc(100vh - 205px);
+
+    overflow-y: auto;
+
+    padding: 20px;
+
+    background:
+        linear-gradient(
+            rgba(49, 91, 234, 0.03),
+            rgba(49, 91, 234, 0.03)
+        );
+}
+
+
+.message {
+
+    max-width: 80%;
+
+    padding: 10px 14px;
+
+    margin: 12px 0;
+
+    border-radius: 16px;
+
+    line-height: 1.6;
+
+    box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+}
+
+
+.message p {
+
+    margin: 5px 0 0;
+}
+
+
+.message-name {
+
+    font-size: 12px;
+
+    font-weight: bold;
+}
+
+
+.received {
+
+    background: var(--card);
+
+    border-top-right-radius: 5px;
+
+    margin-left: auto;
+}
+
+
+.sent {
+
+    background: #d9e5ff;
+
+    color: #15264f;
+
+    border-top-left-radius: 5px;
+
+    margin-right: auto;
+}
+
+
+body.dark .sent {
+
+    background: #293b6e;
+
+    color: white;
+}
+
+
+.chat-input {
+
+    height: 70px;
+
+    display: flex;
+
+    gap: 8px;
+
+    padding: 10px;
+
+    background: var(--card);
+
+    border-top: 1px solid var(--border);
+
+    position: fixed;
+
+    bottom: 0;
+
+    width: min(700px, 100%);
+
+    z-index: 10;
+}
+
+
+.chat-input input {
+
+    margin: 0;
+
+    flex: 1;
+}
+
+
+.chat-input button {
+
+    width: 52px;
+
+    border: none;
+
+    border-radius: 14px;
+
+    background: var(--primary);
+
+    color: white;
+
+    font-size: 20px;
+
+    cursor: pointer;
+}
+
+
+/* ================================
+   Footer
+================================ */
+
+footer {
+
+    text-align: center;
+
+    padding: 45px 20px;
+
+    border-top: 1px solid var(--border);
+
+    background: var(--card);
+
+    color: var(--muted);
+
+    margin-top: 60px;
+}
+
+
+footer h2 {
+
+    color: var(--text);
+}
+
+
+/* ================================
+   الموبايل
+================================ */
+
+@media (max-width: 600px) {
+
+    .main-card {
+
+        padding: 18px;
+
+        gap: 13px;
+    }
+
+    .card-icon {
+
+        min-width: 52px;
+
+        width: 52px;
+
+        height: 52px;
+
+        font-size: 25px;
+    }
+
+    .main-card h2 {
+
+        font-size: 18px;
+    }
+
+    .main-card p {
+
+        font-size: 13px;
+    }
+
+    .arrow {
+
+        font-size: 20px;
+    }
+
+    .hero {
+
+        min-height: 330px;
+    }
+
+    .hero h1 {
+
+        font-size: 45px;
+    }
+
+    .message {
+
+        max-width: 88%;
+    }
+}
